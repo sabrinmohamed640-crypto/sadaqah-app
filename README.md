@@ -6,7 +6,7 @@
 
 ## 📌 Problem & Purpose
 
-Individuals seeking to maintain regular charitable habits often lack a dedicated, private, and distraction-free mobile tool to organize their giving, track multiple charitable causes (e.g. food aid, emergency relief, water wells, student scholarships), and reflect on their personal intentions without intrusive advertisements or complex finance platforms.
+Individuals seeking to maintain regular charitable habits often lack a dedicated, private, and distraction-free mobile tool to organize their giving, track multiple charitable causes (e.g., food aid, emergency relief, water wells, student scholarships), and reflect on their personal intentions without intrusive advertisements or complex finance platforms.
 
 This mobile application provides an intuitive Flutter interface designed to organize donations with clear categorizations, goal tracking, and private record history.
 
@@ -14,13 +14,7 @@ This mobile application provides an intuitive Flutter interface designed to orga
 
 ## 📸 Screenshots
 
-| Mobile Dashboard & Goal Meter | Donation Logging & Quick Selectors |
-| :---: | :---: |
-| *(Capture main mobile dashboard showing monthly giving meter, cause breakdown, and recent feed)* | *(Capture Log Donation screen showing amount inputs, category picker, and recurring schedule)* |
-
-| Searchable Donation History | Verified Record Receipt Dialog |
-| :---: | :---: |
-| *(Capture Records screen with horizontal category filter pills and live search bar)* | *(Capture modal showing donation timestamp, recipient, cause tag, and intention note)* |
+Screenshots will be added after capturing the final application UI.
 
 ---
 
@@ -48,14 +42,14 @@ This mobile application provides an intuitive Flutter interface designed to orga
 
 ## 🏗️ Architecture
 
-```
+```text
 sadaqah-app/
 ├── lib/
 │   ├── main.dart                      # App entrypoint and bottom navigation shell
 │   ├── models/
 │   │   └── donation.dart              # Donation model, Category enums & JSON serialization
 │   ├── services/
-│   │   └── storage_service.dart       # In-memory and local persistent storage manager
+│   │   └── storage_service.dart       # In-memory state management service with demo data
 │   ├── theme/
 │   │   └── app_theme.dart             # Dark emerald color palette and widget theme data
 │   └── screens/
@@ -64,7 +58,7 @@ sadaqah-app/
 │       ├── add_donation_screen.dart   # Form with quick-amount selectors & validation
 │       └── receipt_dialog.dart        # Detailed receipt modal
 ├── test/
-│   └── widget_test.dart               # Unit and business logic test suite (5 test cases)
+│   └── widget_test.dart               # Unit and business logic test suite
 ├── pubspec.yaml                       # Flutter package dependencies
 ├── .gitignore                         # Flutter & Dart build and cache exclusions
 └── README.md                          # Project documentation and setup guide
@@ -90,7 +84,7 @@ flutter run -d windows
 # Run in Chrome Web Browser
 flutter run -d chrome
 
-# Run on Connected Android / iOS Device
+# Run on Connected Mobile Device
 flutter run
 ```
 
@@ -98,13 +92,13 @@ flutter run
 
 ## 🧪 Testing & Code Quality
 
-Run Dart static analysis and unit tests:
+Run Dart static analysis and the Flutter test suite:
 
 ```bash
 # Run static analysis (0 errors, 0 warnings)
 dart analyze
 
-# Run unit & business logic test suite
+# Run unit & business logic test suite (5 test cases passing)
 flutter test
 ```
 
