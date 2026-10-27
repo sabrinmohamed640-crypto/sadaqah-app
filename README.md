@@ -1,128 +1,135 @@
-# Sadaqah & Donation Management Mobile App
+# Khairat (خَيْرات) — Mobile-Based Zakat & Sadaqah Management System
 
-> A cross-platform mobile application engineered with Flutter & Dart for organizing charitable giving, tracking Sadaqah and Zakat contributions, and monitoring monthly giving goals.
+[![Flutter](https://img.shields.io/badge/Flutter-3.x-02569B?logo=flutter)](https://flutter.dev)
+[![Dart](https://img.shields.io/badge/Dart-3.x-0175C2?logo=dart)](https://dart.dev)
+[![Firebase](https://img.shields.io/badge/Firebase-Firestore-FFCA28?logo=firebase&logoColor=black)](https://firebase.google.com)
+[![Platform](https://img.shields.io/badge/Platform-Android%20%7C%20iOS%20%7C%20Web-lightgrey)]()
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
----
+An enterprise-grade, privacy-conscious cross-platform mobile application engineered with **Flutter**, **Dart**, and **Cloud Firestore** for organizing charitable giving, tracking Zakat obligations, managing Waqf endowments, and administering aid delivery with verifiable audit trails.
 
-## 📌 Problem & Purpose
-
-Individuals seeking to maintain regular charitable habits often lack a dedicated, private, and distraction-free mobile tool to organize their giving, track multiple charitable causes (e.g., food aid, emergency relief, water wells, student scholarships), and reflect on their personal intentions without intrusive advertisements or complex finance platforms.
-
-This mobile application provides an intuitive Flutter interface designed to organize donations with clear categorizations, goal tracking, and private record history.
-
----
-
-## 📸 Screenshots
-
-Screenshots will be added after capturing the final application UI.
+Developed as a **Computer Science Graduation Project** addressing localized charitable distribution and Zakat calculation in Somalia and the Horn of Africa.
 
 ---
 
-## ✨ Features
+## 🌟 Key Highlights
 
-- **Categorized Giving**: Separate tracking across 7 distinct causes: Zakat, Sadaqah Jariyah, Emergency Relief, Education & Students, Food & Water Aid, Masjid & Community, and General Sadaqah.
-- **Monthly Giving Target Tracker**: Visual progress bar comparing current monthly donations against a user-defined giving goal.
-- **Cause Breakdown Distribution**: Real-time distribution metrics displaying total giving per charitable category.
-- **Chronological History & Filter Toolbar**: Search records by recipient organization or filter instantly across category pills.
-- **Detailed Donation Receipts**: Dedicated record modal displaying timestamps, amounts, scheduling frequency, and private reflection notes.
-- **Recurring Schedules**: Flexible donation frequency tagging (One-Time, Monthly, or Annual Zakat).
-- **Dignified Dark Theme**: Custom emerald and dark slate palette crafted for comfortable night and day usage.
-
----
-
-## 🛠️ Technology Stack
-
-- **Framework**: Flutter 3.x (Material Design 3)
-- **Language**: Dart
-- **Architecture**: Clean Service-Repository pattern with reactive `StatefulWidget` hierarchy
-- **Formatting**: `intl` package for currency and date formatting
-- **Testing**: `flutter_test` unit & widget test suite
+* **Role-Based Access Control (RBAC):** Dedicated, secure views for four distinct user archetypes:
+  * **Muzakki (Donors):** Quick Giving, Nisab calculations, donation tracking, and impact metrics.
+  * **Mustahik (Beneficiaries):** Secure aid requests, application status tracking, and disbursement verification.
+  * **Amil (Zakat Collectors/Admins):** Field collection, verification workflow, and transaction logging.
+  * **System Administrator:** Executive analytics dashboard, user approvals, Waqf project management, and audit logs.
+* **Specialized Somali & Sharia-Compliant Zakat Calculators:**
+  * **Livestock Zakat Calculator (حساب زكاة الأنعام):** Specialized Nisab thresholds and bracket calculations for Camels (*Geel*), Cattle (*Lo'*), and Sheep/Goats (*Ari*).
+  * **Cash, Gold & Silver Zakat Calculator:** Real-time calculation based on current Nisab values.
+* **Waqf & Long-Term Endowment Management:** Multi-stage developmental project funding, milestone tracking, and community impact reports.
+* **Orphan Sponsorship Module:** Direct sponsorship management with transparent updates.
+* **Enterprise Reporting Engine:** Real-time automated PDF and CSV generation for financial statements and distribution audits.
+* **Offline-Resilient Architecture:** Local caching abstractions with automatic Cloud Firestore synchronization and optimistic UI updates.
 
 ---
 
-## 🏗️ Architecture
+## 🏗️ Architecture & Technical Stack
 
-```text
-sadaqah-app/
-├── lib/
-│   ├── main.dart                      # App entrypoint and bottom navigation shell
-│   ├── models/
-│   │   └── donation.dart              # Donation model, Category enums & JSON serialization
-│   ├── services/
-│   │   └── storage_service.dart       # In-memory state management service with demo data
-│   ├── theme/
-│   │   └── app_theme.dart             # Dark emerald color palette and widget theme data
-│   └── screens/
-│       ├── dashboard_screen.dart      # Giving metrics, monthly goal & recent feed
-│       ├── records_screen.dart        # Searchable, filterable donation history
-│       ├── add_donation_screen.dart   # Form with quick-amount selectors & validation
-│       └── receipt_dialog.dart        # Detailed receipt modal
-├── test/
-│   └── widget_test.dart               # Unit and business logic test suite
-├── pubspec.yaml                       # Flutter package dependencies
-├── .gitignore                         # Flutter & Dart build and cache exclusions
-└── README.md                          # Project documentation and setup guide
+```
+Khairat Mobile Application
+├── Presentation Layer (Flutter & Material 3)
+│   ├── Screens (Admin Portal, Donor Views, Beneficiary Workflows)
+│   ├── Custom UI Components & Animated Cards
+│   └── Multi-Theme Design System (Dark & Light Mode)
+│
+├── Business Logic & State Layer
+│   ├── Zakat Computational Engines (Livestock, Cash, Gold)
+│   ├── Role Gateways & Safe Navigation Guards
+│   └── Cache Managers & Reactive Stream Controllers
+│
+└── Infrastructure & Data Layer (Firebase)
+    ├── Firebase Authentication (JWT & Session Lifecycles)
+    ├── Cloud Firestore (Normalized Collections with Composite Indexes)
+    ├── Security Rules (Collection-level RBAC)
+    └── Cloud Messaging (FCM Push Notifications)
+```
+
+### Core Technologies
+* **Framework:** Flutter 3.x (Dart 3.x)
+* **Backend:** Cloud Firestore, Firebase Authentication, Cloud Messaging
+* **State Management:** Reactive streams (`RxDart`), `ChangeNotifier`, Services Layer
+* **Persistence & Caching:** `shared_preferences`, Firestore offline persistence
+* **Document Generation:** `pdf`, `csv`
+* **UI/UX:** Custom Material 3, `lottie` micro-animations, accessible color palette
+
+---
+
+## 📱 Feature Overview
+
+### 1. Sharia-Compliant Zakat Calculators
+* **Livestock Nisab Engine:** 
+  * Camels: 5 to 150+ with traditional Islamic distribution brackets (Bint Makhad, Bint Labun, Hiqqah, Jaza'ah).
+  * Cattle: Tabi' and Musinnah requirements.
+  * Sheep & Goats: 40 to 400+ bracket steps.
+* **Wealth & Commercial Assets:** Calculates 2.5% on qualifying balances exceeding the gold (85g) or silver (595g) standard after one lunar year (*Hawl*).
+
+### 2. Executive Admin Console
+* 4 Real-time metrics: Total Donations, Active Beneficiaries, Funded Campaigns, and System Health.
+* Direct approval and verification workflow for aid requests.
+* Firestore index optimization and audit logging.
+
+### 3. Waqf & Sustainable Development
+* Project-based giving targeting educational infrastructure, clean water wells, and community health centers.
+* Stage-by-stage funding transparency with live percentage trackers.
+
+---
+
+## 📂 Project Structure
+
+```
+lib/
+├── config/              # Firebase messaging and platform configuration
+├── data/                # Static models and seed data
+├── models/              # Immutable data transfer objects (Donation, Campaign, Waqf, Mustahik, etc.)
+├── screens/             # UI Views (Admin Dashboard, Splash, Auth, Waqf, Calculator)
+├── services/            # Backend communication, Auth, Analytics, Report Generation
+├── utils/               # Constants, Localization, Theme, and Zakat Calculators
+│   └── zakat_calculator/
+│       ├── cash_zakat_calculator.dart
+│       ├── livestock_zakat_calculator.dart
+│       └── zakat_calculation_result.dart
+├── widgets/             # Reusable UI components (Stats Cards, Animated Buttons)
+└── main.dart            # Application bootstrap with safe Firebase initialization
 ```
 
 ---
 
-## 🚀 How to Run Locally
+## 🚀 Getting Started
 
-### 1. Prerequisites
-- Flutter SDK (3.0+) and Dart installed and configured on PATH
+### Prerequisites
+* Flutter SDK (`^3.12.1` or newer)
+* Dart SDK (`^3.12.1` or newer)
+* Android Studio / VS Code with Flutter extension
+* A configured Firebase Project (Google Services JSON / Plist)
 
-### 2. Install Dependencies
-```bash
-flutter pub get
-```
+### Installation
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/sabrinmohamed640-crypto/sadaqah-app.git
+   cd sadaqah-app
+   ```
 
-### 3. Run the App
-```bash
-# Run on Windows Desktop
-flutter run -d windows
+2. Install dependencies:
+   ```bash
+   flutter pub get
+   ```
 
-# Run in Chrome Web Browser
-flutter run -d chrome
-
-# Run on Connected Mobile Device
-flutter run
-```
-
----
-
-## 🧪 Testing & Code Quality
-
-Run Dart static analysis and the Flutter test suite:
-
-```bash
-# Run static analysis (0 errors, 0 warnings)
-dart analyze
-
-# Run unit & business logic test suite (5 test cases passing)
-flutter test
-```
+3. Run the development build:
+   ```bash
+   flutter run
+   ```
 
 ---
 
-## 🔮 Planned Future Enhancements
-
-- Annual Zakat calculation helper based on current Nisab threshold values.
-- PDF charitable donation tax summary export.
-- Offline SQLite persistence via `sqflite` / `isar`.
+## 📄 License
+This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
 
 ---
 
-## 💡 What I Learned
-
-1. Composing custom, reusable Material 3 widgets in Flutter with responsive layout constraints.
-2. Managing cross-screen state flow and form validation in Dart.
-3. Structuring clean data models with typed enums, extension methods, and JSON converters.
-4. Designing accessible visual data indicators (progress bars, category metrics, and bottom navigation).
-
----
-
-## 👩‍💻 Author
-
-**Sabrina Mohamed**
-- GitHub: [@sabrinmohamed640-crypto](https://github.com/sabrinmohamed640-crypto)
-- LinkedIn: [Sabrina Mohamed](https://www.linkedin.com/in/sabrina-mohamed-16bbb2426/)
+**Developed with dedication by Sabrina Mohamed — Computer Science Graduate.**

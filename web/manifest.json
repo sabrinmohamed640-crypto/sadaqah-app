@@ -1,6 +1,6 @@
 {
-    "name": "sadaqah_app",
-    "short_name": "sadaqah_app",
+    "name": "zakat_sadaqah_app",
+    "short_name": "zakat_sadaqah_app",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

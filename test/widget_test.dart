@@ -1,85 +1,146 @@
+// This is a basic Flutter widget test for Khairat.
+//
+// To perform an interaction with a widget in your test, use the WidgetTester
+// utility in the flutter_test package.
+
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:sadaqah_app/models/donation.dart';
-import 'package:sadaqah_app/services/storage_service.dart';
+import 'package:zakat_sadaqah_app/main.dart';
+import 'package:zakat_sadaqah_app/utils/localization.dart';
+
+/// Sets a standard 390×844 logical-pixel viewport (iPhone 14 equivalent).
+void _setStandardViewport(WidgetTester tester) {
+  tester.view.physicalSize = const Size(390, 844);
+  tester.view.devicePixelRatio = 1.0;
+  addTearDown(() {
+    tester.view.resetPhysicalSize();
+    tester.view.resetDevicePixelRatio();
+  });
+}
+
+/// Sets a large viewport to prevent layout overflow in complex screens.
+void _setLargeViewport(WidgetTester tester) {
+  tester.view.physicalSize = const Size(1080, 2400);
+  tester.view.devicePixelRatio = 1.0;
+  addTearDown(() {
+    tester.view.resetPhysicalSize();
+    tester.view.resetDevicePixelRatio();
+  });
+}
 
 void main() {
-  group('Donation Model & Category Tests', () {
-    test('Category display names are properly mapped', () {
-      expect(DonationCategory.zakat.displayName, 'Zakat');
-      expect(DonationCategory.sadaqahJariyah.displayName, 'Sadaqah Jariyah');
-      expect(DonationCategory.emergencyAid.displayName, 'Emergency Relief');
-      expect(DonationCategory.foodRelief.displayName, 'Food & Water Aid');
-    });
+  testWidgets('Dashboard renders successfully', (WidgetTester tester) async {
+    _setStandardViewport(tester);
 
-    test('Donation JSON serialization and deserialization', () {
-      final donation = Donation(
-        id: 'test-123',
-        amount: 75.50,
-        category: DonationCategory.foodRelief,
-        recipient: 'Community Pantry',
-        date: DateTime(2026, 8, 21),
-        recurringType: RecurringType.monthly,
-        notes: 'Monthly food basket',
-      );
+    await tester.pumpWidget(const LocalizationManager(
+      initialLanguage: AppLanguage.en,
+      child: ZakatSadaqahApp(),
+    ));
+    await tester.pumpAndSettle(const Duration(seconds: 2));
 
-      final json = donation.toJson();
-      expect(json['id'], 'test-123');
-      expect(json['amount'], 75.50);
-      expect(json['category'], 'foodRelief');
+    // Verify app name is rendered in the AppBar
+    expect(find.text('Khairat'), findsOneWidget);
 
-      final reconstructed = Donation.fromJson(json);
-      expect(reconstructed.id, 'test-123');
-      expect(reconstructed.amount, 75.50);
-      expect(reconstructed.category, DonationCategory.foodRelief);
-      expect(reconstructed.recipient, 'Community Pantry');
-      expect(reconstructed.recurringType, RecurringType.monthly);
-      expect(reconstructed.notes, 'Monthly food basket');
-    });
+    // Verify overview card sections are rendered
+    expect(find.text('Your Contribution Overview'), findsOneWidget);
+    expect(find.text('Zakat Paid'), findsOneWidget);
+    expect(find.text('Sadaqah Paid'), findsOneWidget);
+
+    // Verify quick actions are rendered
+    expect(find.text('Calculate Zakat'), findsOneWidget);
+    expect(find.text('Quick Pay'), findsOneWidget);
   });
 
-  group('StorageService Business Logic Tests', () {
-    final storage = DonationStorageService();
+  testWidgets('Bottom navigation transitions correctly to Services Screen', (WidgetTester tester) async {
+    _setStandardViewport(tester);
 
-    test('Initialize with demo data loads default contributions', () {
-      storage.initializeWithDemoData();
-      expect(storage.allDonations.isNotEmpty, true);
-      expect(storage.allDonations.length, greaterThanOrEqualTo(5));
-    });
+    await tester.pumpWidget(const LocalizationManager(
+      initialLanguage: AppLanguage.en,
+      child: ZakatSadaqahApp(),
+    ));
+    await tester.pumpAndSettle(const Duration(seconds: 2));
 
-    test('Adding a new donation updates all-time and monthly totals', () {
-      final initialTotal = storage.getTotalGivenAllTime();
-      final testDonation = Donation(
-        id: 'test-add-${DateTime.now().millisecondsSinceEpoch}',
-        amount: 150.00,
-        category: DonationCategory.emergencyAid,
-        recipient: 'Medical Aid Fund',
-        date: DateTime.now(),
-        recurringType: RecurringType.oneTime,
-        notes: 'QA Test',
-      );
+    // Find and tap the "Services" tab
+    final servicesTab = find.text('Services');
+    expect(servicesTab, findsOneWidget);
+    await tester.tap(servicesTab);
+    await tester.pumpAndSettle();
 
-      storage.addDonation(testDonation);
-      expect(storage.getTotalGivenAllTime(), equals(initialTotal + 150.00));
+    // Verify that the Services screen has loaded with header and grid
+    expect(find.text('Services Portal'), findsOneWidget);
+    expect(find.text('Zakat'), findsOneWidget);
+    expect(find.text('Periodic Donation'), findsOneWidget);
+    expect(find.text('Charity Gift'), findsOneWidget);
+    expect(find.text('Campaigns'), findsOneWidget);
 
-      final breakdown = storage.getCategoryBreakdown();
-      expect(breakdown.containsKey(DonationCategory.emergencyAid), true);
-      expect(breakdown[DonationCategory.emergencyAid]!, greaterThanOrEqualTo(150.00));
-    });
+    // Search bar check
+    expect(find.byType(TextField), findsOneWidget);
+  });
 
-    test('Deleting a donation removes it from records', () {
-      final toDelete = Donation(
-        id: 'to-delete-999',
-        amount: 25.00,
-        category: DonationCategory.generalCharity,
-        recipient: 'Delete Me',
-        date: DateTime.now(),
-      );
+  testWidgets('Services screen search filters cards correctly', (WidgetTester tester) async {
+    _setStandardViewport(tester);
 
-      storage.addDonation(toDelete);
-      expect(storage.allDonations.any((d) => d.id == 'to-delete-999'), true);
+    await tester.pumpWidget(const LocalizationManager(
+      initialLanguage: AppLanguage.en,
+      child: ZakatSadaqahApp(),
+    ));
+    await tester.pumpAndSettle(const Duration(seconds: 2));
 
-      storage.deleteDonation('to-delete-999');
-      expect(storage.allDonations.any((d) => d.id == 'to-delete-999'), false);
-    });
+    // Navigate to Services Screen
+    await tester.tap(find.text('Services'));
+    await tester.pumpAndSettle();
+
+    // All services are visible initially
+    expect(find.text('Zakat'), findsOneWidget);
+    expect(find.text('Periodic Donation'), findsOneWidget);
+
+    // Type a search query to filter results
+    await tester.enterText(find.byType(TextField), 'zakat');
+    await tester.pumpAndSettle();
+
+    // Only Zakat card should remain visible
+    expect(find.text('Zakat'), findsOneWidget);
+    // Periodic Donation should be filtered out
+    expect(find.text('Periodic Donation'), findsNothing);
+
+    // Clear the search field to restore all cards
+    await tester.enterText(find.byType(TextField), '');
+    await tester.pumpAndSettle();
+
+    // All services visible again
+    expect(find.text('Zakat'), findsOneWidget);
+    expect(find.text('Periodic Donation'), findsOneWidget);
+  });
+
+  testWidgets('Language toggle changes app state to Arabic', (WidgetTester tester) async {
+    // Use a large viewport so the More tab and its content are fully visible
+    _setLargeViewport(tester);
+
+    // Start with English
+    await tester.pumpWidget(const LocalizationManager(
+      initialLanguage: AppLanguage.en,
+      child: ZakatSadaqahApp(),
+    ));
+    await tester.pumpAndSettle(const Duration(seconds: 2));
+
+    // Navigate to More Screen
+    await tester.tap(find.text('More'));
+    await tester.pumpAndSettle();
+
+    // Verify More screen is in English
+    expect(find.text('Change Language'), findsOneWidget);
+    expect(find.text('English / العربية'), findsOneWidget);
+
+    // Tap to toggle language
+    await tester.tap(find.text('Change Language'));
+    await tester.pumpAndSettle();
+
+    // Verify the LocalizationManagerState has switched to Arabic
+    final locManager = tester.state<LocalizationManagerState>(
+      find.byType(LocalizationManager),
+    );
+    expect(locManager.language, equals(AppLanguage.ar));
+    expect(locManager.localization.translate('app_name'), equals('خيرات'));
+    expect(locManager.textDirection, equals(TextDirection.rtl));
   });
 }

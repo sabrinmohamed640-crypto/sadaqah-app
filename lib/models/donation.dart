@@ -1,107 +1,92 @@
-enum DonationCategory {
-  zakat,
-  sadaqahJariyah,
-  emergencyAid,
-  education,
-  foodRelief,
-  masjidSupport,
-  generalCharity,
-}
-
-extension DonationCategoryExtension on DonationCategory {
-  String get displayName {
-    switch (this) {
-      case DonationCategory.zakat:
-        return 'Zakat';
-      case DonationCategory.sadaqahJariyah:
-        return 'Sadaqah Jariyah';
-      case DonationCategory.emergencyAid:
-        return 'Emergency Relief';
-      case DonationCategory.education:
-        return 'Education & Students';
-      case DonationCategory.foodRelief:
-        return 'Food & Water Aid';
-      case DonationCategory.masjidSupport:
-        return 'Masjid & Community';
-      case DonationCategory.generalCharity:
-        return 'General Sadaqah';
-    }
-  }
-
-  String get iconName {
-    switch (this) {
-      case DonationCategory.zakat:
-        return 'handshake';
-      case DonationCategory.sadaqahJariyah:
-        return 'tree';
-      case DonationCategory.emergencyAid:
-        return 'medical_services';
-      case DonationCategory.education:
-        return 'school';
-      case DonationCategory.foodRelief:
-        return 'restaurant';
-      case DonationCategory.masjidSupport:
-        return 'account_balance';
-      case DonationCategory.generalCharity:
-        return 'favorite';
-    }
-  }
-}
-
-enum RecurringType {
-  oneTime,
-  monthly,
-  annual,
-}
+import 'package:cloud_firestore/cloud_firestore.dart';
+import '../utils/constants.dart';
 
 class Donation {
   final String id;
+  final String donorId; // Reference to Muzakki ID
+  final String donorName;
+  final String? recipientId; // Reference to Mustahik ID (null for General Zakat/Sadaqah Fund)
   final double amount;
-  final DonationCategory category;
-  final String recipient;
-  final DateTime date;
-  final RecurringType recurringType;
+  final String type; // 'Zakat', 'Sadaqah'
+  final String paymentMethod; // 'Bank Transfer', 'Mobile Money', 'Card', etc.
+  final String status; // 'Pending', 'Completed', 'Failed'
+  final DateTime timestamp;
   final String? notes;
-  final bool isAnonymous;
 
-  const Donation({
+  Donation({
     required this.id,
+    required this.donorId,
+    required this.donorName,
+    this.recipientId,
     required this.amount,
-    required this.category,
-    required this.recipient,
-    required this.date,
-    this.recurringType = RecurringType.oneTime,
+    required this.type,
+    required this.paymentMethod,
+    this.status = 'Pending',
+    required this.timestamp,
     this.notes,
-    this.isAnonymous = false,
   });
 
-  Map<String, dynamic> toJson() => {
-        'id': id,
-        'amount': amount,
-        'category': category.name,
-        'recipient': recipient,
-        'date': date.toIso8601String(),
-        'recurringType': recurringType.name,
-        'notes': notes,
-        'isAnonymous': isAnonymous,
-      };
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'donorId': donorId,
+      'donorName': donorName,
+      'recipientId': recipientId,
+      'amount': amount,
+      'type': type,
+      'paymentMethod': paymentMethod,
+      'status': status,
+      'timestamp': Timestamp.fromDate(timestamp),
+      'notes': notes,
+    };
+  }
 
-  factory Donation.fromJson(Map<String, dynamic> json) {
+  factory Donation.fromMap(Map<String, dynamic> map) {
+    DateTime parseDateTime(dynamic val) {
+      if (val == null) return DateTime.now();
+      if (val is Timestamp) return val.toDate();
+      if (val is String) return DateTime.tryParse(val) ?? DateTime.now();
+      if (val is DateTime) return val;
+      return DateTime.now();
+    }
+
     return Donation(
-      id: json['id'] as String,
-      amount: (json['amount'] as num).toDouble(),
-      category: DonationCategory.values.firstWhere(
-        (c) => c.name == json['category'],
-        orElse: () => DonationCategory.generalCharity,
-      ),
-      recipient: json['recipient'] as String,
-      date: DateTime.parse(json['date'] as String),
-      recurringType: RecurringType.values.firstWhere(
-        (r) => r.name == json['recurringType'],
-        orElse: () => RecurringType.oneTime,
-      ),
-      notes: json['notes'] as String?,
-      isAnonymous: json['isAnonymous'] as bool? ?? false,
+      id: map['id'] ?? '',
+      donorId: map['donorId'] ?? '',
+      donorName: map['donorName'] ?? '',
+      recipientId: map['recipientId'],
+      amount: AppConstants.parseDouble(map['amount']),
+      type: map['type'] ?? 'Sadaqah',
+      paymentMethod: map['paymentMethod'] ?? 'Bank Transfer',
+      status: map['status'] ?? 'Pending',
+      timestamp: parseDateTime(map['timestamp']),
+      notes: map['notes'],
+    );
+  }
+
+  Donation copyWith({
+    String? id,
+    String? donorId,
+    String? donorName,
+    String? recipientId,
+    double? amount,
+    String? type,
+    String? paymentMethod,
+    String? status,
+    DateTime? timestamp,
+    String? notes,
+  }) {
+    return Donation(
+      id: id ?? this.id,
+      donorId: donorId ?? this.donorId,
+      donorName: donorName ?? this.donorName,
+      recipientId: recipientId ?? this.recipientId,
+      amount: amount ?? this.amount,
+      type: type ?? this.type,
+      paymentMethod: paymentMethod ?? this.paymentMethod,
+      status: status ?? this.status,
+      timestamp: timestamp ?? this.timestamp,
+      notes: notes ?? this.notes,
     );
   }
 }

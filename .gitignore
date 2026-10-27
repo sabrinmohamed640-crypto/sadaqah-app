@@ -16,6 +16,12 @@ migrate_working_dir/
 *.iws
 .idea/
 
+# Visual Studio Code related
+.vscode/
+
+# Flutter repo-specific
+/bin/cache/
+
 # Flutter/Dart/Pub related
 **/doc/api/
 **/ios/Flutter/.last_build_id
@@ -27,17 +33,8 @@ migrate_working_dir/
 .pub/
 /build/
 
-# Android related
-**/android/**/gradle-wrapper.jar
-**/android/.gradle
-**/android/captures/
-**/android/gradlew
-**/android/gradlew.bat
-**/android/local.properties
-**/android/**/GeneratedPluginRegistrant.java
-
-# Visual Studio Code related
-.vscode/
-
-# Windows-specific
-Thumbs.db
+# Android build artifacts
+/android/app/debug
+/android/app/profile
+/android/app/release
+*.apk

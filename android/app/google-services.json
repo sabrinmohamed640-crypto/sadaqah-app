@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "241104428345",
+    "project_id": "zakat-84f05",
+    "storage_bucket": "zakat-84f05.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:241104428345:android:62c3ff90dd4460aeab1ce8",
+        "android_client_info": {
+          "package_name": "com.example.zakat_sadaqah_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAZwgesWX-Qa_UXcL_yTbCkhSELUer5xQE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

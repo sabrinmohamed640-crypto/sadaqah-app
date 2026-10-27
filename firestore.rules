@@ -1,0 +1,179 @@
+rules_version = '2';
+
+// Zakat & Sadaqah Care — Firestore Security Rules
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── Helpers ─────────────────────────────────────────────────────────────
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(uid) {
+      return isSignedIn() && request.auth.uid == uid;
+    }
+
+    function userDoc() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid));
+    }
+
+    function userProfileExists() {
+      return isSignedIn()
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid));
+    }
+
+    function isAdmin() {
+      return userProfileExists() && userDoc().data.role == 'admin';
+    }
+
+    function ownerProfileUpdateOnly() {
+      return request.resource.data.diff(resource.data).affectedKeys()
+        .hasOnly(['name', 'phoneNumber', 'totalZakatPaid', 'totalSadaqahPaid']);
+    }
+
+    // ── users/{userId} ───────────────────────────────────────────────────────
+
+    match /users/{userId} {
+      allow read: if isOwner(userId) || isAdmin();
+      allow create: if isOwner(userId)
+        && request.resource.data.uid == userId
+        && request.resource.data.role == 'muzakki'
+        && request.resource.data.email is string
+        && request.resource.data.name is string
+        && request.resource.data.phoneNumber is string;
+
+      allow update: if isAdmin()
+        || (isOwner(userId)
+            && request.resource.data.uid == resource.data.uid
+            && request.resource.data.role == resource.data.role
+            && ownerProfileUpdateOnly());
+
+      allow delete: if isAdmin();
+
+      match /transactions/{transactionId} {
+        allow read: if isOwner(userId) || isAdmin();
+        allow create: if isOwner(userId)
+          && request.resource.data.keys().hasAll(['transactionId', 'amount', 'status'])
+          && request.resource.data.amount is number
+          && request.resource.data.amount > 0;
+        allow update, delete: if isAdmin();
+      }
+    }
+
+    // ── donations/{donationId} ───────────────────────────────────────────────
+
+    match /donations/{donationId} {
+      allow read: if isAdmin()
+        || (isSignedIn() && resource.data.donorId == request.auth.uid);
+
+      allow create: if isSignedIn()
+        && request.resource.data.donorId == request.auth.uid
+        && request.resource.data.amount is number
+        && request.resource.data.amount > 0
+        && request.resource.data.type in ['Zakat', 'Sadaqah']
+        && request.resource.data.status in ['Pending', 'Completed'];
+
+      allow update, delete: if isAdmin();
+    }
+
+    // ── mustahik/{id} ──────────────────────────────────────────────────────
+
+    match /mustahik/{mustahikId} {
+      allow read: if isSignedIn();
+      allow create, update, delete: if isAdmin();
+    }
+
+    // ── aid_requests/{id} ────────────────────────────────────────────────────
+
+    match /aid_requests/{requestId} {
+      allow read: if isAdmin();
+      allow create: if isSignedIn()
+        && request.resource.data.status == 'Pending'
+        && request.resource.data.name is string
+        && request.resource.data.name.size() > 0;
+      allow update, delete: if isAdmin();
+    }
+
+    // ── zakat_calculations/{id} ──────────────────────────────────────────────
+
+    match /zakat_calculations/{calcId} {
+      allow read: if isAdmin()
+        || (isSignedIn() && resource.data.userId == request.auth.uid);
+      allow create: if isSignedIn()
+        && request.resource.data.userId == request.auth.uid;
+      allow update, delete: if isAdmin();
+    }
+
+    // ── audit_logs/{id} ──────────────────────────────────────────────────────
+
+    match /audit_logs/{logId} {
+      allow read: if isAdmin();
+      allow create: if isAdmin();
+      allow update, delete: if false;
+    }
+
+    // ── campaigns/{id} ──────────────────────────────────────────────────────
+
+    match /campaigns/{campaignId} {
+      allow read: if isSignedIn();
+      allow create: if isAdmin()
+        && request.resource.data.name is string
+        && request.resource.data.name.size() > 0
+        && request.resource.data.targetAmount is number
+        && request.resource.data.targetAmount > 0
+        && request.resource.data.status == 'active';
+      
+      // تم التعديل هنا: السماح للأدمن بالتعديل الكامل، وللمستخدم بتحديث currentAmount فقط
+      allow update: if isAdmin() 
+        || (isSignedIn() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['currentAmount']));
+      
+      allow delete: if isAdmin();
+    }
+
+    // ── projects/{id} ────────────────────────────────────────────────────────
+
+    match /projects/{projectId} {
+      allow read: if isSignedIn();
+      allow create, update, delete: if isAdmin();
+
+      // ── Stages sub-collection (real-time implementation stages)
+      match /stages/{stageId} {
+        allow read: if isSignedIn();
+        allow create, update, delete: if isAdmin();
+      }
+    }
+
+    // ── muzakki/{id} ──────────
+
+    match /muzakki/{muzakkiId} {
+      allow read: if isSignedIn();
+      allow create, update, delete: if isAdmin();
+    }
+
+    // ── orphans/{id} ──────────────────────────────────────────────────────
+
+    match /orphans/{orphanId} {
+      allow read: if isSignedIn();
+      allow create, update: if isAdmin()
+        && request.resource.data.name is string
+        && request.resource.data.name.size() > 0
+        && request.resource.data.age is number
+        && request.resource.data.age > 0
+        && request.resource.data.bio is string
+        && request.resource.data.imageUrl is string
+        && request.resource.data.sponsorshipAmount is number
+        && request.resource.data.sponsorshipAmount > 0
+        && request.resource.data.status in ['available', 'sponsored'];
+      allow delete: if isAdmin();
+    }
+
+    match /test_collection/{docId} {
+      allow read, write: if false;
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
